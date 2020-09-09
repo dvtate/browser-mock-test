@@ -62,20 +62,21 @@ describe('lookup', function callback() {
             return textObject;
         }
 
-        // This is what kills it:
-        // It seems that mocha is trying to print all the tiny meaningless details of each texture object which can be several kilobytes in size
+        // Each of these can be several kilobytes in size due to having references to textures
         const labels = [
             addText(new THREE.Vector3(1, 0, 0), "tessdfft"),
             addText(new THREE.Vector3(1, 0, 0), "tesdfagadgst"),
             addText(new THREE.Vector3(1, 0, 0), "teghkfhkst"),
             addText(new THREE.Vector3(1, 0, 0), "teskgkfjkhht"),
             addText(new THREE.Vector3(1, 0, 0), "teghjgjfgst"),
+            // /* I'd reccomend reducing size of problem before starting on it
             addText(new THREE.Vector3(1, 0, 0), "teskfghjgfkt"),
             addText(new THREE.Vector3(1, 0, 0), "tesjhgjjght"),
             addText(new THREE.Vector3(1, 0, 0), "testhjfjhgjf"),
             addText(new THREE.Vector3(1, 0, 0), "thfghdhhest"),
             addText(new THREE.Vector3(1, 0, 0), "tefghdfghfst"),
             addText(new THREE.Vector3(1, 0, 0), "tefghdfhgst"),
+            // */
         ];
         labels.forEach(l => scene.add(l));
 
