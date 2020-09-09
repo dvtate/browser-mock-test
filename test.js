@@ -1,16 +1,15 @@
 const { expect } = require('chai');
-const THREE = require('three');
-
 
 describe('lookup', function callback() {
     it('does not crash', function callback() {
+        // Mock browser environment
         const jsdom = new (require('jsdom')).JSDOM();
         const canvas = jsdom.window.document.createElement('canvas');
         global.window = jsdom.window;
         global.document = jsdom.window.document;
         
+        // Make renderer using headless gl
         const THREE = require('three');
-        
         const width = 400, height = 200;
         const context = require('gl')(200, 400);
         const renderer = new THREE.WebGLRenderer({
@@ -18,27 +17,20 @@ describe('lookup', function callback() {
             canvas, context
         });
     
+        // Set up renderer
         renderer.sortObjects = false;
         renderer.setClearColor(0xffffff);
         renderer.setSize(width, height, false);
-        camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
+        const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
         camera.position.z = 1;
-    
-        scene = new THREE.Scene();
-    
-        geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
-        material = new THREE.MeshNormalMaterial();
-    
-        mesh = new THREE.Mesh( geometry, material );
-        scene.add( mesh );
-
+        const scene = new THREE.Scene();
         
-        // Canvas material
+        // Create sprite object using a canvas to generate the texture
         function addText(position, text) {
             var canvas,
                 context,
                 metrics = null,
-                textHeight = 10,
+                textHeight = 20,
                 textWidth = 0,
                 actualFontSize = 0.12;
             canvas = document.createElement('canvas'),
@@ -70,36 +62,30 @@ describe('lookup', function callback() {
             return textObject;
         }
 
-
-        // Draw some lines
-        const points = [
-            new THREE.Vector3(1,3,4),
-            new THREE.Vector3(3,5,7),
-            new THREE.Vector3(9,4,3),
-            new THREE.Vector3(1,3,2),
-        ];
-        const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: 0x666fff }));
-        scene.add(line);
-        
-        const wf = new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.SphereBufferGeometry( 100, 100, 100 )));
-        scene.add(wf);
-
+        // This is what kills it:
+        // It seems that mocha is trying to print all the tiny meaningless details of each texture object which can be several kilobytes in size
         const labels = [
-            addText(new THREE.Vector3(1, 0, 0), "test"),
-            addText(new THREE.Vector3(0, 1, 0), "test1"),
-            addText(new THREE.Vector3(0, 0, 1), "test2"),
+            addText(new THREE.Vector3(1, 0, 0), "tessdfft"),
+            addText(new THREE.Vector3(1, 0, 0), "tesdfagadgst"),
+            addText(new THREE.Vector3(1, 0, 0), "teghkfhkst"),
+            addText(new THREE.Vector3(1, 0, 0), "teskgkfjkhht"),
+            addText(new THREE.Vector3(1, 0, 0), "teghjgjfgst"),
+            addText(new THREE.Vector3(1, 0, 0), "teskfghjgfkt"),
+            addText(new THREE.Vector3(1, 0, 0), "tesjhgjjght"),
+            addText(new THREE.Vector3(1, 0, 0), "testhjfjhgjf"),
+            addText(new THREE.Vector3(1, 0, 0), "thfghdhhest"),
+            addText(new THREE.Vector3(1, 0, 0), "tefghdfghfst"),
+            addText(new THREE.Vector3(1, 0, 0), "tefghdfhgst"),
         ];
-        scene.add(labels[0]);
-        scene.add(labels[1]);
-        scene.add(labels[2]);
+        labels.forEach(l => scene.add(l));
 
-        renderer.setSize( window.innerWidth, window.innerHeight );
-        window.document.body.appendChild( renderer.domElement );
-        
-        renderer.render(scene, camera);
+        // This is just for demonstration
 
-        expect(scene.children).to.include.members([wf, [], mesh, ...labels ]);
-        wf.removeFromScene();
-        expect(scene.children).to.include(wf);
+        // This prints instantly and is very fast
+        console.log(scene.children);
+
+        // This test intentionally fails so that chai makes mocha print the diff
+        // This takes 1 eternity for each label you add and causes corporate testing server to crash
+        expect(scene.children).to.include.members([{}, ...labels ]);
     });
 });
